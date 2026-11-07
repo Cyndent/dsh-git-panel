@@ -10,6 +10,7 @@ DSH 右侧栏的本地 Git 面板：查看当前工作树的变更、历史、�
 - **工作树变更**：按文件列出改动，显示已暂存 / 未跟踪标记与增删行数；点击文件查看逐行 diff。
 - **历史**：最近提交列表，点进任意提交查看提交信息、作者、时间和完整 diff。
 - **工作树列表**：`git worktree list` 的只读展示，标出当前所在工作树。
+- **审批提示音**：新审批单出现时播放一个短促的双音提示；面板右上角的喇叭按钮可静音，设置保存在浏览器本地。
 - **审批**：
   - Agent 调用 `git_panel_submit` 提交补丁，生成审批单；
   - 面板自动打开并选中该单，显示标题、说明、补丁能否干净应用、逐文件 diff；
@@ -32,7 +33,7 @@ dsh plugin --profile <profile> add /absolute/path/to/dsh-git-panel
 
 ```sh
 npm pack
-dsh plugin --profile <profile> add ./dsh-git-panel-0.2.0.tgz
+dsh plugin --profile <profile> add ./dsh-git-panel-0.3.0.tgz
 ```
 
 安装后重启 DSH 宿主；浏览器半区改完只需刷新页面。

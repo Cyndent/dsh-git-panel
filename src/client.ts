@@ -175,6 +175,114 @@
       }
     }
 
+    // ── 审批提示音 ───────────────────────────────────────────────────────
+    // 不引入音频文件：用 Web Audio 合成一个短促的双音提示。
+    // 浏览器自动播放策略要求先有一次用户手势；和 whale-widget 一样，
+    // 首次 pointerdown / keydown 时解锁 AudioContext。
+    const SOUND_KEY = 'dsh-git-panel.sound'
+    let soundEnabled = true
+    try {
+      soundEnabled = localStorage.getItem(SOUND_KEY) !== 'off'
+    } catch {
+      soundEnabled = true
+    }
+    let audioContext: any = null
+    let lastChimeAt = 0
+
+    function isSoundEnabled(): boolean {
+      return soundEnabled
+    }
+
+    function setSoundEnabled(value: boolean): void {
+      soundEnabled = value
+      try {
+        localStorage.setItem(SOUND_KEY, value ? 'on' : 'off')
+      } catch {
+        // localStorage 不可用时只影响记忆。
+      }
+    }
+
+    function ensureAudioContext(): any {
+      if (typeof window === 'undefined') return null
+      const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext
+      if (typeof Ctor !== 'function') return null
+      if (audioContext === null || audioContext.state === 'closed') {
+        try {
+          audioContext = new Ctor({ latencyHint: 'interactive' })
+        } catch {
+          audioContext = null
+        }
+      }
+      return audioContext
+    }
+
+    function unlockAudio(): void {
+      const ctx = ensureAudioContext()
+      if (ctx !== null && ctx.state === 'suspended') {
+        try {
+          void ctx.resume().catch(() => undefined)
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    function installAudioUnlock(): () => void {
+      if (typeof window === 'undefined') return () => undefined
+      const unlock = () => unlockAudio()
+      window.addEventListener('pointerdown', unlock, { passive: true })
+      window.addEventListener('keydown', unlock)
+      return () => {
+        window.removeEventListener('pointerdown', unlock)
+        window.removeEventListener('keydown', unlock)
+      }
+    }
+
+    function playReviewChime(): void {
+      if (!soundEnabled) return
+      const now = Date.now()
+      if (now - lastChimeAt < 900) return
+      lastChimeAt = now
+      const ctx = ensureAudioContext()
+      if (ctx === null) return
+
+      const play = () => {
+        try {
+          const start = ctx.currentTime + 0.02
+          const notes = [
+            { frequency: 880, at: 0 },
+            { frequency: 1174.66, at: 0.14 }
+          ]
+          for (const note of notes) {
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+            const base = start + note.at
+            osc.type = 'sine'
+            osc.frequency.setValueAtTime(note.frequency, base)
+            gain.gain.setValueAtTime(0.0001, base)
+            gain.gain.exponentialRampToValueAtTime(0.11, base + 0.012)
+            gain.gain.exponentialRampToValueAtTime(0.0001, base + 0.32)
+            osc.connect(gain)
+            gain.connect(ctx.destination)
+            osc.start(base)
+            osc.stop(base + 0.34)
+          }
+        } catch {
+          // 音频节点创建失败不该影响审批流程。
+        }
+      }
+
+      if (ctx.state === 'suspended') {
+        try {
+          void ctx.resume().then(play).catch(() => undefined)
+        } catch {
+          // ignore
+        }
+      } else {
+        play()
+      }
+    }
+
     // ── Diff 渲染 ────────────────────────────────────────────────────────
     function buildDiffRows(patch: string): { rows: any[]; truncated: boolean } {
       const text = (patch ?? '').replace(/\r\n/g, '\n')
@@ -367,6 +475,28 @@
       )
     }
 
+    function SoundIcon(props: any) {
+      const muted = props && props.muted === true
+      return h(
+        'svg',
+        {
+          width: 15,
+          height: 15,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.8,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': true
+        },
+        h('path', { d: 'M4 9v6h4l5 4V5L8 9H4z' }),
+        muted
+          ? h('path', { d: 'M17 9l4 6M21 9l-4 6' })
+          : h('path', { d: 'M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12' })
+      )
+    }
+
     function GitTitle(props: any) {
       const info = props.useTabInfo ? props.useTabInfo() : null
       return h(
@@ -420,6 +550,7 @@
       const [busy, setBusy] = React.useState(false)
       const [refreshKey, setRefreshKey] = React.useState(0)
       const [toast, setToast] = React.useState('')
+      const [soundOn, setSoundOn] = React.useState(() => isSoundEnabled())
       const toastTimer = React.useRef(null)
       const reviewStatusRef = React.useRef(null)
 
@@ -656,6 +787,19 @@
             h(
               'div',
               { className: 'GITP_headActions' },
+              h(
+                IconButton,
+                {
+                  title: soundOn ? '审批提示音：开' : '审批提示音：关',
+                  onClick: () => {
+                    const next = !soundOn
+                    setSoundEnabled(next)
+                    setSoundOn(next)
+                    if (next) playReviewChime()
+                  }
+                },
+                h(SoundIcon, { muted: !soundOn })
+              ),
               h(IconButton, { title: '刷新', onClick: retry, disabled: busy }, busy ? '…' : '↻'),
               h(
                 IconButton,
@@ -1100,6 +1244,7 @@
           const fresh = list.filter((review) => !seen.has(review.id))
           if (fresh.length > 0) {
             for (const review of fresh) seen.add(review.id)
+            playReviewChime()
             openGitTabWithRetry(ctx, fresh[0].id, 0)
           }
         } catch {
@@ -1287,6 +1432,7 @@
         return installLinkHandler(ctx)
       }, `${PACKAGE}: deep link`)
 
+      ctx.effect(() => installAudioUnlock(), `${PACKAGE}: audio unlock`)
       ctx.effect(() => startPendingWatch(ctx, api), `${PACKAGE}: pending watch`)
 
       ctx.effect(

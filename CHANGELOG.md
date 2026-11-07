@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — 2026-11-07
+
+- 新增审批提示音：新审批单出现时播放合成双音提示。
+- 使用 Web Audio 合成，不新增音频资源；首次点击/按键解锁 AudioContext（同 whale-widget 的自动播放处理）。
+- 面板右上角新增喇叭开关，可静音；选择保存在浏览器 `localStorage`。
+- `README` 补充 `use_worktree` 与提示音说明。
+
 ## 0.2.0 — 2026-11-07
 
 - `git_panel_submit` 新增 `use_worktree`：省略 `patch` 或传 `use_worktree: true` 时，宿主直接读取工作区 diff（含未跟踪文件），补丁不经过模型上下文，避免大补丁被上下文截断。
