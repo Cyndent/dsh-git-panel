@@ -1,0 +1,14 @@
+# dependencies / package caches
+node_modules/
+.npm-cache/
+
+# release artifacts (built with `npm pack`)
+*.tgz
+
+# local logs / test output
+*.log
+
+# OS metadata
+desktop.ini
+Thumbs.db
+.DS_Store

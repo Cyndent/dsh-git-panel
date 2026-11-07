@@ -1,0 +1,5 @@
+# dsh-git-panel bundle patch.
+# 安装后 profile 会应用这一层，插件随宿主启动挂载。
+- insert:
+    - id: git-panel
+      name: dsh-git-panel

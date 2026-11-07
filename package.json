@@ -1,0 +1,42 @@
+{
+  "name": "dsh-git-panel",
+  "version": "0.2.0",
+  "description": "DSH 右侧栏 Git 面板：查看本地工作树、历史与工作树列表，并让 Agent 提交 unified diff/patch 供用户在 DSH 内审批。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-api-gateway"
+      ]
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "INSTALL.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/strip-client-export.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "git",
+    "diff",
+    "review"
+  ]
+}
