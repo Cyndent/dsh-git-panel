@@ -497,6 +497,34 @@
       )
     }
 
+    function HeaderGitButton(props: any) {
+      const ctx = props.ctx
+      return h(
+        'button',
+        {
+          type: 'button',
+          className: 'GITP_headerBtn',
+          title: '打开 Git 面板',
+          'aria-label': '打开 Git 面板',
+          onClick: () => {
+            const sidebar = ctx?.get?.('sidebarRight')
+            if (sidebar === undefined) return
+            try {
+              const active = sidebar.active?.()
+              if (active !== undefined && active !== null && active.kind === KIND && sidebar.isExpanded?.() === true) {
+                sidebar.hide(active.id)
+                return
+              }
+              sidebar.openTab(KIND)
+            } catch {
+              // 没有会话面时忽略。
+            }
+          }
+        },
+        h(GitIcon, { size: 15 })
+      )
+    }
+
     function GitTitle(props: any) {
       const info = props.useTabInfo ? props.useTabInfo() : null
       return h(
@@ -1383,6 +1411,9 @@
 .GITP_errorHint{font-size:11px;line-height:1.55;color:var(--dsw-alias-label-tertiary)}
 .GITP_toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:min(420px,86vw);background:var(--dsw-alias-bg-layer-3);color:var(--dsw-alias-label-primary);border:1px solid var(--dsw-alias-border-l2);border-radius:9px;padding:7px 12px;font-size:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:50}
 .GITP_title{display:inline-flex;align-items:center;gap:5px;min-width:0}
+.GITP_headerBtn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:0}
+.GITP_headerBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
+.GITP_headerBtn:active{background:var(--dsw-alias-bg-layer-3)}
 `
 
     // ── 插件体 ───────────────────────────────────────────────────────────
@@ -1472,6 +1503,23 @@
             ctx.slots.register({ name: 'sidebar.right.pane.tab.title', key: TAB_ID }, GitTitle)
           ),
         `${PACKAGE}: tab title`
+      )
+
+      // 会话标题栏右侧的快捷入口，位置与 forge（变更请求）图标同一排。
+      ctx.effect(
+        () =>
+          ctx.slots.inject('conversation.session.header.utilities', () =>
+            ctx.slots.register(
+              {
+                name: 'conversation.session.header.utilities',
+                id: 'git-panel.quick',
+                order: -9,
+                inject: () => ({ ctx })
+              },
+              HeaderGitButton
+            )
+          ),
+        `${PACKAGE}: header quick open`
       )
     }
 

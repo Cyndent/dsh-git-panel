@@ -7,6 +7,7 @@ DSH 右侧栏的本地 Git 面板：查看当前工作树的变更、历史、�
 ## 功能
 
 - **右侧栏 Git 标签页**：从右侧栏的「Git 变更」入口打开，或由 Agent 提交审批时自动打开。
+- **标题栏快捷图标**：会话标题栏右侧有一个 Git 图标（与 forge 变更请求图标同一排），点击直接打开 / 收起 Git 面板。
 - **工作树变更**：按文件列出改动，显示已暂存 / 未跟踪标记与增删行数；点击文件查看逐行 diff。
 - **历史**：最近提交列表，点进任意提交查看提交信息、作者、时间和完整 diff。
 - **工作树列表**：`git worktree list` 的只读展示，标出当前所在工作树。
@@ -33,7 +34,7 @@ dsh plugin --profile <profile> add /absolute/path/to/dsh-git-panel
 
 ```sh
 npm pack
-dsh plugin --profile <profile> add ./dsh-git-panel-0.3.0.tgz
+dsh plugin --profile <profile> add ./dsh-git-panel-0.4.0.tgz
 ```
 
 安装后重启 DSH 宿主；浏览器半区改完只需刷新页面。

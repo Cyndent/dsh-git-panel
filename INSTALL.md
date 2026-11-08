@@ -15,7 +15,7 @@ D:\Git\DSH-plugin\dsh-git-panel
 已打好 tarball：
 
 ```
-D:\Git\DSH-plugin\dsh-git-panel\dsh-git-panel-0.3.0.tgz
+D:\Git\DSH-plugin\dsh-git-panel\dsh-git-panel-0.4.0.tgz
 ```
 
 ## 方案 B：关掉 DSH 后，一次迁移 pnpm store 并安装插件
@@ -107,7 +107,7 @@ dsh plugin --profile desktop add D:\Git\DSH-plugin\dsh-git-panel
 或安装 tarball：
 
 ```powershell
-dsh plugin --profile desktop add D:\Git\DSH-plugin\dsh-git-panel\dsh-git-panel-0.3.0.tgz
+dsh plugin --profile desktop add D:\Git\DSH-plugin\dsh-git-panel\dsh-git-panel-0.4.0.tgz
 ```
 
 如果 `dsh` 不在 PATH，用方式二。
