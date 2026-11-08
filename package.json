@@ -1,6 +1,6 @@
 {
   "name": "dsh-git-panel",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "DSH 右侧栏 Git 面板：查看本地工作树、历史与工作树列表，并让 Agent 提交 unified diff/patch 供用户在 DSH 内审批。",
   "type": "module",
   "main": "lib/index.js",
