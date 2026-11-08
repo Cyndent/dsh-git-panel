@@ -1055,14 +1055,6 @@
                             '补丁不能直接应用到当前工作树（可能已应用、上下文变化或仅用于展示）。',
                             detail.applyError ? h('div', { className: 'GITP_applyErrText' }, detail.applyError) : null
                           ),
-                    h(MultiDiff, {
-                      files: detail.diffFiles || detail.files || [],
-                      tab,
-                      sessionId,
-                      baseDir: (state && state.cwd) || (state && state.repo && state.repo.root) || '',
-                      repoRoot: detail.repoRoot || (state && state.repo && state.repo.root) || '',
-                      emptyText: '审批单没有文件差异'
-                    }),
                     status === 'pending'
                       ? h(
                           'div',
@@ -1086,7 +1078,15 @@
                           h('div', { className: 'GITP_decisionTitle' }, meta.label),
                           detail.comment ? h('div', { className: 'GITP_decisionComment' }, detail.comment) : null,
                           h('div', { className: 'GITP_commitMeta' }, detail.decidedAt ? '决定时间：' + formatTime(detail.decidedAt) : '')
-                        )
+                        ),
+                    h(MultiDiff, {
+                      files: detail.diffFiles || detail.files || [],
+                      tab,
+                      sessionId,
+                      baseDir: (state && state.cwd) || (state && state.repo && state.repo.root) || '',
+                      repoRoot: detail.repoRoot || (state && state.repo && state.repo.root) || '',
+                      emptyText: '审批单没有文件差异'
+                    })
                   )
           )
         }

@@ -34,7 +34,7 @@ dsh plugin --profile <profile> add /absolute/path/to/dsh-git-panel
 
 ```sh
 npm pack
-dsh plugin --profile <profile> add ./dsh-git-panel-0.4.1.tgz
+dsh plugin --profile <profile> add ./dsh-git-panel-0.4.2.tgz
 ```
 
 安装后重启 DSH 宿主；浏览器半区改完只需刷新页面。
